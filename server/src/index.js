@@ -9,6 +9,7 @@ import stacksRouter from './routes/stacks.js';
 import sbtRouter from './routes/sbt.js';
 import usersRouter from './routes/users.js';
 import sbtsRouter from './routes/sbts.js';
+import domainsRouter from './routes/domains.js';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use('/api', stacksRouter);
 app.use('/api', sbtRouter);
 app.use('/api', usersRouter);
 app.use('/api', sbtsRouter);
+app.use('/api/domains', domainsRouter);
 
 // Health check
 app.get('/api/health', (_req, res) => {

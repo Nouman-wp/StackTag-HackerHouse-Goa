@@ -28,13 +28,11 @@ export default function SpaceNavbar() {
 
   const fetchUserProfile = async (address) => {
     try {
-      const response = await fetch(`/api/users?walletAddress=${address}`);
+      const response = await fetch(`${import.meta.env.VITE_API_BASE || 'http://localhost:5000'}/api/users?walletAddress=${address}`);
       if (response.ok) {
-        const users = await response.json();
-        if (users.length > 0) {
-          setUsername(users[0].username);
-          localStorage.setItem('username', users[0].username);
-        }
+        const user = await response.json();
+        setUsername(user.username);
+        localStorage.setItem('username', user.username);
       }
     } catch (error) {
       console.log('No existing profile found');
@@ -45,14 +43,7 @@ export default function SpaceNavbar() {
     setWalletAddress(address);
     setIsConnected(true);
     fetchUserProfile(address);
-    // Upsert user on backend to populate MongoDB
-    try {
-      fetch('/api/users', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ username: localStorage.getItem('username') || '', walletAddress: address, displayName: '' })
-      }).catch(() => {});
-    } catch {}
+    // Note: Users are now created via domain claiming, not wallet connection
   };
 
   const handleWalletDisconnect = () => {

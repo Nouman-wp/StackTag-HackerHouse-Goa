@@ -1,7 +1,7 @@
 [project]
 name = "better-bns"
 description = "BetterBNS - Enhanced BNS with SBT integration"
-authors = ["BetterBNS Team"]
+authors = ["Caspian"]
 telemetry = true
 cache_dir = "./.clarinet"
 

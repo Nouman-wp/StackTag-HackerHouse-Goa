@@ -6,12 +6,45 @@ export default function SpaceHome() {
   const [walletAddress, setWalletAddress] = useState('');
 
   useEffect(() => {
-    // Check for connected wallet
+    // Check for connected wallet on mount
     const savedAddress = localStorage.getItem('walletAddress');
     if (savedAddress) {
       setWalletAddress(savedAddress);
     }
-  }, []);
+
+    // Listen for wallet connection changes
+    const handleStorageChange = (e) => {
+      if (e.key === 'walletAddress') {
+        setWalletAddress(e.newValue || '');
+      }
+    };
+
+    // Listen for custom wallet events
+    const handleWalletConnect = (e) => {
+      setWalletAddress(e.detail.address || '');
+    };
+
+    // Listen for direct localStorage changes in same tab
+    const checkWalletAddress = () => {
+      const currentAddress = localStorage.getItem('walletAddress');
+      if (currentAddress !== walletAddress) {
+        setWalletAddress(currentAddress || '');
+      }
+    };
+
+    // Set up listeners
+    window.addEventListener('storage', handleStorageChange);
+    window.addEventListener('walletConnected', handleWalletConnect);
+    
+    // Poll for changes every second (fallback for same-tab changes)
+    const interval = setInterval(checkWalletAddress, 1000);
+
+    return () => {
+      window.removeEventListener('storage', handleStorageChange);
+      window.removeEventListener('walletConnected', handleWalletConnect);
+      clearInterval(interval);
+    };
+  }, [walletAddress]);
 
   const handleClaimDomain = async () => {
     if (!username.trim()) {

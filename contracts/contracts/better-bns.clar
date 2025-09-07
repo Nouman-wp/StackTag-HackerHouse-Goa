@@ -179,7 +179,6 @@
   (begin
     (try! (validate-domain-name name))
     (asserts! (is-domain-available name) err-already-exists)
-    (try! (stx-transfer? (var-get domain-price) tx-sender (as-contract tx-sender)))
     (map-set domains
       { name: name }
       {

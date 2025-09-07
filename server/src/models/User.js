@@ -13,24 +13,57 @@ const userSchema = new mongoose.Schema(
     walletAddress: { 
       type: String, 
       required: true, 
-      unique: true,
       index: true 
     },
     displayName: { type: String, trim: true },
-    bio: { type: String, maxlength: 500 },
-    avatarUrl: { type: String },
-    bannerUrl: { type: String },
-    email: { type: String, lowercase: true, trim: true },
-    website: { type: String },
-    location: { type: String },
+    
+    // Domain claim information
+    domainClaim: {
+      txId: { type: String, required: true },
+      fee: { type: String, default: '20 STX' },
+      claimedAt: { type: Date, default: Date.now },
+      blockchainConfirmed: { type: Boolean, default: false }
+    },
+    
+    // Profile information
+    profile: {
+      bio: { type: String, maxlength: 500 },
+      avatarUrl: { type: String },
+      bannerUrl: { type: String },
+      website: { type: String },
+      location: { type: String },
+      isPublic: { type: Boolean, default: true }
+    },
+    
+    // Social links
+    socialLinks: {
+      twitter: { type: String },
+      farcaster: { type: String },
+      base: { type: String },
+      github: { type: String },
+      linkedin: { type: String },
+      discord: { type: String }
+    },
+    
+    // SBTs (Soulbound Tokens)
+    sbts: [{
+      tokenId: { type: String },
+      name: { type: String },
+      description: { type: String },
+      imageUrl: { type: String },
+      issuer: { type: String },
+      issuerAddress: { type: String },
+      issuedAt: { type: Date, default: Date.now },
+      metadata: { type: Object }
+    }],
+    
     isVerified: { type: Boolean, default: false },
-    joinedAt: { type: Date, default: Date.now },
     lastActive: { type: Date, default: Date.now },
+    
     stats: {
       profileViews: { type: Number, default: 0 },
       sbtsReceived: { type: Number, default: 0 },
-      sbtsIssued: { type: Number, default: 0 },
-      domainsOwned: { type: Number, default: 1 }
+      sbtsIssued: { type: Number, default: 0 }
     }
   },
   { 
@@ -52,4 +85,5 @@ userSchema.index({
   bio: 'text' 
 });
 
-export const User = mongoose.model('User', userSchema);
+const User = mongoose.model('User', userSchema);
+export default User;

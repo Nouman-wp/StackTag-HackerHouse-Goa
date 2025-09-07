@@ -17,6 +17,12 @@ export default function LeatherWalletConnect({ onConnect, onDisconnect }) {
         setWalletAddress(stxAddr);
         setIsConnected(true);
         localStorage.setItem('walletAddress', stxAddr);
+        
+        // Dispatch custom event for other components to listen
+        window.dispatchEvent(new CustomEvent('walletConnected', { 
+          detail: { address: stxAddr } 
+        }));
+        
         onConnect?.(stxAddr);
         return;
       }
@@ -27,6 +33,12 @@ export default function LeatherWalletConnect({ onConnect, onDisconnect }) {
     if (savedAddress) {
       setWalletAddress(savedAddress);
       setIsConnected(true);
+      
+      // Dispatch custom event for other components to listen
+      window.dispatchEvent(new CustomEvent('walletConnected', { 
+        detail: { address: savedAddress } 
+      }));
+      
       onConnect?.(savedAddress);
     }
   }, [onConnect]);
@@ -62,6 +74,12 @@ export default function LeatherWalletConnect({ onConnect, onDisconnect }) {
           setWalletAddress(stxAddr);
           setIsConnected(true);
           localStorage.setItem('walletAddress', stxAddr);
+          
+          // Dispatch custom event for other components to listen
+          window.dispatchEvent(new CustomEvent('walletConnected', { 
+            detail: { address: stxAddr } 
+          }));
+          
           onConnect?.(stxAddr);
           return;
         }
@@ -75,6 +93,12 @@ export default function LeatherWalletConnect({ onConnect, onDisconnect }) {
         setWalletAddress(result.stacks);
         setIsConnected(true);
         localStorage.setItem('walletAddress', result.stacks);
+        
+        // Dispatch custom event for other components to listen
+        window.dispatchEvent(new CustomEvent('walletConnected', { 
+          detail: { address: result.stacks } 
+        }));
+        
         onConnect?.(result.stacks);
         return;
       }
