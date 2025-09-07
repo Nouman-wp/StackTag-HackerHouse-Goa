@@ -1,0 +1,29 @@
+[project]
+name = "better-bns"
+description = "BetterBNS - Enhanced BNS with SBT integration"
+authors = ["BetterBNS Team"]
+telemetry = true
+cache_dir = "./.clarinet"
+
+[contracts.better-bns]
+path = "contracts/better-bns.clar"
+clarity_version = 2
+epoch = "2.4"
+
+[contracts.better-sbt]
+path = "contracts/better-sbt.clar"
+clarity_version = 2
+epoch = "2.4"
+
+[repl]
+costs_version = 3
+clarity_version = 2
+
+[repl.analysis]
+passes = ["check_checker"]
+
+[[repl.analysis.check_checker]]
+strict = false
+trusted_sender = false
+trusted_caller = false
+callee_filter = false
