@@ -1,3 +1,5 @@
+[![img](https://ik.imagekit.io/cf8zqioncl/Screenshot%202025-09-08%20125826.png?updatedAt=1757316526809)](https://ik.imagekit.io/cf8zqioncl/Screenshot%202025-09-08%20125826.png?updatedAt=1757316526809)
+
 # Stack Tag 🏷️
 
 > **Decentralized Identity & Achievement Platform on Stacks Blockchain**
@@ -17,13 +19,13 @@ Stack your achievements, tag your identity, and showcase your proof-of-work in t
 ## 📸 Platform Screenshots
 
 ### 🏠 Home Page - Claim Your .btc Domain
-[![Home Page](https://via.placeholder.com/800x500/0f172a/3b82f6?text=Stack+Tag+Home+Page)](https://your-image-link.com)
+[![Home Page](https://ik.imagekit.io/cf8zqioncl/Screenshot%202025-09-08%20124927.png?updatedAt=1757316066775)](https://ik.imagekit.io/cf8zqioncl/Screenshot%202025-09-08%20124927.png?updatedAt=1757316066775)
 
 ### 👤 Profile Page - Showcase Your Identity
-[![Profile Page](https://via.placeholder.com/800x500/0f172a/8b5cf6?text=User+Profile+Page)](https://your-image-link.com)
+[![Profile Page](https://ik.imagekit.io/cf8zqioncl/Screenshot%202025-09-08%20125532.png?updatedAt=1757316390679)](https://ik.imagekit.io/cf8zqioncl/Screenshot%202025-09-08%20125532.png?updatedAt=1757316390679)
 
 ### 📊 Dashboard - Manage SBTs & Social Links
-[![Dashboard](https://via.placeholder.com/800x500/0f172a/10b981?text=User+Dashboard)](https://your-image-link.com)
+[![Dashboard](https://ik.imagekit.io/cf8zqioncl/Screenshot%202025-09-08%20125349.png?updatedAt=1757316248925)](https://ik.imagekit.io/cf8zqioncl/Screenshot%202025-09-08%20125349.png?updatedAt=1757316248925)
 
 ---
 
