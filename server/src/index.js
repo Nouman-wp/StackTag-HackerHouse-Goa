@@ -43,6 +43,15 @@ mongoose
   .connect(mongoUri, { serverSelectionTimeoutMS: 5000 })
   .then(() => {
     console.log('Mongo connected');
+
+    // Allow multiple users per wallet by dropping legacy unique index if present
+    try {
+      const db = mongoose.connection.db;
+      db.collection('users').dropIndex('walletAddress_1').then(
+        () => console.log('Dropped unique index walletAddress_1 (if it existed)'),
+        () => {} // ignore if index not present
+      );
+    } catch {}
   })
   .catch((err) => {
     console.error('Mongo connection error (continuing without DB)', err?.message || err);

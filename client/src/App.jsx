@@ -4,6 +4,7 @@ import SpaceFooter from './components/SpaceFooter';
 import SpaceHome from './pages/SpaceHome';
 import ProfilePage from './pages/ProfilePage';
 import UserProfile from './pages/UserProfile';
+import UserDashboard from './pages/UserDashboard';
 import Dashboard from './pages/Dashboard';
 import TestWallet from './pages/TestWallet';
 import './index.css';
@@ -36,7 +37,7 @@ function App() {
         } />
         <Route path="/:username/dashboard" element={
           <Layout>
-            <Dashboard />
+            <UserDashboard />
           </Layout>
         } />
         <Route path="/test" element={

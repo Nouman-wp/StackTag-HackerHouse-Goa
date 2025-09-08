@@ -1,4 +1,4 @@
-## BetterBNS – MERN + Stacks Testnet MVP
+## Stack Tag – MERN + Stacks Testnet MVP
 
 ### 1) Prerequisites
 - Node.js 20.19+ (React 19 + Vite 7 require it). Install from nodejs.org or use nvm.
@@ -15,7 +15,7 @@ contract/   # Clarity contracts (better-bns, better-sbt)
 - Create `server/.env` from `server/.env.example`:
 ```
 PORT=5000
-MONGO_URI=mongodb://localhost:27017/better_bns
+MONGO_URI=mongodb://localhost:27017/stack_tag
 PINATA_JWT=YOUR_PINATA_JWT
 PINATA_GATEWAY=https://gateway.pinata.cloud
 STACKS_NETWORK=testnet
@@ -27,7 +27,7 @@ APP_DEPLOYMENT_ORIGIN=http://localhost:5173
 ```
 VITE_API_BASE=http://localhost:5000/api
 VITE_STACKS_NETWORK=testnet
-VITE_APP_NAME=BetterBNS
+VITE_APP_NAME=Stack Tag
 VITE_APP_URL=http://localhost:5173
 ```
 

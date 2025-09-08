@@ -3,94 +3,129 @@ import User from '../models/User.js';
 
 const router = Router();
 
-// Get SBTs for a user (now stored in user document)
-router.get('/users/:username/sbts', async (req, res) => {
-  try {
-    const { username } = req.params;
-
-    const user = await User.findOne({ username: username.toLowerCase() });
-    if (!user) {
-      return res.status(404).json({ error: 'User not found' });
-    }
-
-    res.json(user.sbts || []);
-  } catch (error) {
-    console.error('Get user SBTs error:', error);
-    res.status(500).json({ error: 'Failed to fetch SBTs' });
-  }
-});
-
-// Issue new SBT (add to user's sbts array)
-router.post('/sbts', async (req, res) => {
+// Send SBT to another user
+router.post('/sbts/send', async (req, res) => {
   try {
     const {
-      tokenId,
+      recipientAddress,
+      recipientUsername,
       name,
       description,
-      imageUrl,
       issuer,
-      issuerAddress,
-      recipientAddress,
-      metadata
+      imageUrl,
+      message,
+      senderUsername,
+      senderAddress
     } = req.body;
 
-    if (!tokenId || !name || !issuerAddress || !recipientAddress) {
-      return res.status(400).json({ error: 'Missing required fields' });
+    // Validate required fields
+    if (!name || !description || !issuer) {
+      return res.status(400).json({ error: 'Name, description, and issuer are required' });
+    }
+
+    if (!recipientAddress && !recipientUsername) {
+      return res.status(400).json({ error: 'Either recipient address or username is required' });
     }
 
     // Find recipient user
-    const recipient = await User.findOne({ walletAddress: recipientAddress });
-    if (!recipient) {
-      return res.status(404).json({ error: 'Recipient user not found' });
+    let recipient;
+    if (recipientUsername) {
+      recipient = await User.findOne({ username: recipientUsername.toLowerCase() });
+      if (!recipient) {
+        return res.status(404).json({ error: `User "${recipientUsername}.btc" not found` });
+      }
+    } else if (recipientAddress) {
+      recipient = await User.findOne({ walletAddress: recipientAddress });
+      if (!recipient) {
+        // Create a new user profile for the wallet address if it doesn't exist
+        recipient = new User({
+          walletAddress: recipientAddress,
+          username: null, // No username claimed yet
+          displayName: recipientAddress.slice(0, 8) + '...' + recipientAddress.slice(-4),
+          sbts: [],
+          socialLinks: {},
+          profile: {},
+          stats: { profileViews: 0 },
+          createdAt: new Date(),
+          lastActive: new Date()
+        });
+      }
     }
 
-    const sbtData = {
-      tokenId,
-      name,
-      description,
-      imageUrl,
-      issuer,
-      issuerAddress,
+    // Create the SBT object
+    const newSBT = {
+      name: name.trim(),
+      description: description.trim(),
+      issuer: issuer.trim(),
+      imageUrl: imageUrl?.trim() || '',
+      message: message?.trim() || '',
       issuedAt: new Date(),
-      metadata: metadata || {}
+      sentBy: senderUsername,
+      senderAddress: senderAddress,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9) // Unique ID
     };
 
-    // Add SBT to user's sbts array
-    await User.findByIdAndUpdate(recipient._id, {
-      $push: { sbts: sbtData },
-      $inc: { 'stats.sbtsReceived': 1 }
+    // Add SBT to recipient's profile
+    if (!recipient.sbts) {
+      recipient.sbts = [];
+    }
+    recipient.sbts.push(newSBT);
+    recipient.lastActive = new Date();
+
+    // Save the recipient
+    await recipient.save();
+
+    // Determine recipient display name for response
+    const recipientDisplay = recipient.username 
+      ? `${recipient.username}.btc` 
+      : `${recipient.walletAddress.slice(0, 8)}...${recipient.walletAddress.slice(-4)}`;
+
+    res.json({
+      message: 'SBT sent successfully',
+      recipient: recipientDisplay,
+      sbt: newSBT,
+      recipientProfile: recipient.username ? `/${recipient.username}/profile` : null
     });
 
-    // Update issuer stats if they're also a user
-    const issuerUser = await User.findOne({ walletAddress: issuerAddress });
-    if (issuerUser) {
-      await User.findByIdAndUpdate(issuerUser._id, {
-        $inc: { 'stats.sbtsIssued': 1 }
-      });
-    }
-
-    res.status(201).json(sbtData);
   } catch (error) {
-    console.error('Issue SBT error:', error);
-    res.status(500).json({ error: 'Failed to issue SBT' });
+    console.error('Send SBT error:', error);
+    res.status(500).json({ error: 'Failed to send SBT' });
   }
 });
 
-// Get SBT by token ID (search in all users)
-router.get('/sbts/:tokenId', async (req, res) => {
+// Get SBTs sent by a specific user
+router.get('/sbts/sent/:username', async (req, res) => {
   try {
-    const { tokenId } = req.params;
+    const { username } = req.params;
     
-    const user = await User.findOne({ 'sbts.tokenId': tokenId });
-    if (!user) {
-      return res.status(404).json({ error: 'SBT not found' });
-    }
+    // Find all users who have SBTs sent by this username
+    const recipients = await User.find({
+      'sbts.sentBy': username
+    }).select('username walletAddress sbts displayName');
 
-    const sbt = user.sbts.find(s => s.tokenId === tokenId);
-    res.json(sbt);
+    const sentSBTs = [];
+    recipients.forEach(recipient => {
+      const recipientSBTs = recipient.sbts.filter(sbt => sbt.sentBy === username);
+      recipientSBTs.forEach(sbt => {
+        sentSBTs.push({
+          ...sbt.toObject(),
+          recipientUsername: recipient.username,
+          recipientAddress: recipient.walletAddress,
+          recipientDisplay: recipient.username 
+            ? `${recipient.username}.btc` 
+            : `${recipient.walletAddress.slice(0, 8)}...${recipient.walletAddress.slice(-4)}`
+        });
+      });
+    });
+
+    res.json({
+      sentSBTs,
+      count: sentSBTs.length
+    });
+
   } catch (error) {
-    console.error('Get SBT error:', error);
-    res.status(500).json({ error: 'Failed to fetch SBT' });
+    console.error('Get sent SBTs error:', error);
+    res.status(500).json({ error: 'Failed to fetch sent SBTs' });
   }
 });
 

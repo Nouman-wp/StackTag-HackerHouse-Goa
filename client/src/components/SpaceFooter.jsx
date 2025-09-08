@@ -11,13 +11,13 @@ export default function SpaceFooter() {
           <div className="col-span-1 md:col-span-2">
             <div className="flex items-center space-x-2 mb-4">
               <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                <span className="text-white font-bold text-sm">B</span>
+                <span className="text-white font-bold text-sm">S</span>
               </div>
-              <span className="text-white font-bold text-xl">BetterBNS</span>
+              <span className="text-white font-bold text-xl">Stack Tag</span>
             </div>
             <p className="text-gray-400 mb-6 max-w-md">
               The ultimate decentralized identity platform on Stacks blockchain. 
-              Claim your .btc domain and showcase your verifiable proof-of-work in the digital cosmos.
+              Tag your achievements with .btc domains and showcase your verifiable proof-of-work in the digital cosmos.
             </p>
             <div className="flex space-x-4">
               <a
@@ -110,7 +110,7 @@ export default function SpaceFooter() {
 
         <div className="border-t border-gray-800 mt-8 pt-8 flex flex-col md:flex-row justify-between items-center">
           <p className="text-gray-400 text-sm">
-            © {currentYear} BetterBNS. Built on Stacks Blockchain.
+            © {currentYear} Stack Tag. Built on Stacks Blockchain.
           </p>
           <div className="flex items-center space-x-6 mt-4 md:mt-0">
             <a href="#" className="text-gray-400 hover:text-white text-sm transition-colors">

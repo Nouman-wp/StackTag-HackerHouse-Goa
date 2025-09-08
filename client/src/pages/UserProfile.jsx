@@ -157,8 +157,21 @@ export default function UserProfile() {
                     )}
                     <h3 className="text-lg font-semibold text-white mb-2">{sbt.name}</h3>
                     <p className="text-gray-300 text-sm mb-2">{sbt.description}</p>
-                    <div className="text-xs text-gray-400">
+                    
+                    {/* Personal message if sent by someone */}
+                    {sbt.message && (
+                      <div className="bg-blue-900/20 border border-blue-700 rounded-lg p-3 mb-3">
+                        <p className="text-blue-300 text-sm italic">"{sbt.message}"</p>
+                      </div>
+                    )}
+                    
+                    <div className="text-xs text-gray-400 space-y-1">
                       <p>Issued by: {sbt.issuer}</p>
+                      {sbt.sentBy && (
+                        <p className="text-purple-400">
+                          📤 Sent by: <span className="font-medium">{sbt.sentBy}.btc</span>
+                        </p>
+                      )}
                       <p>Date: {new Date(sbt.issuedAt).toLocaleDateString()}</p>
                     </div>
                   </div>

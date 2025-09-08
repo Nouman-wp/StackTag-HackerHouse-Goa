@@ -59,6 +59,84 @@ router.put('/users/:username', async (req, res) => {
   }
 });
 
+// Update social links for a user
+router.put('/users/:username/social', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { socialLinks } = req.body;
+
+    // Validate and clean social links
+    const cleanedLinks = {};
+    if (socialLinks) {
+      Object.keys(socialLinks).forEach(platform => {
+        const value = socialLinks[platform];
+        if (value && typeof value === 'string' && value.trim()) {
+          // Remove @ symbol and clean username
+          cleanedLinks[platform] = value.trim().replace(/^@/, '');
+        }
+      });
+    }
+
+    const user = await User.findOneAndUpdate(
+      { username: username.toLowerCase() },
+      { 
+        socialLinks: cleanedLinks,
+        lastActive: new Date()
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'Social links updated successfully', user });
+  } catch (error) {
+    console.error('Update social links error:', error);
+    res.status(500).json({ error: 'Failed to update social links' });
+  }
+});
+
+// Add SBT to user profile
+router.post('/users/:username/sbts', async (req, res) => {
+  try {
+    const { username } = req.params;
+    const { name, description, issuer, imageUrl } = req.body;
+
+    // Validate required fields
+    if (!name || !description || !issuer) {
+      return res.status(400).json({ error: 'Name, description, and issuer are required' });
+    }
+
+    const newSBT = {
+      name: name.trim(),
+      description: description.trim(),
+      issuer: issuer.trim(),
+      imageUrl: imageUrl?.trim() || '',
+      issuedAt: new Date(),
+      id: Date.now().toString() // Simple ID for now
+    };
+
+    const user = await User.findOneAndUpdate(
+      { username: username.toLowerCase() },
+      { 
+        $push: { sbts: newSBT },
+        lastActive: new Date()
+      },
+      { new: true, runValidators: true }
+    );
+
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    res.json({ message: 'SBT added successfully', sbt: newSBT, user });
+  } catch (error) {
+    console.error('Add SBT error:', error);
+    res.status(500).json({ error: 'Failed to add SBT' });
+  }
+});
+
 // Get user by wallet address
 router.get('/users', async (req, res) => {
   try {
