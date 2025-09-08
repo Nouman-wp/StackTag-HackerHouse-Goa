@@ -1,14 +1,7 @@
 import { PinataSDK } from 'pinata-web3';
-import { 
-  makeContractCall,
-  broadcastTransaction,
-  AnchorMode,
-  PostConditionMode,
-  stringAsciiCV,
-  principalCV,
-  uintCV
-} from '@stacks/transactions';
-import { StacksTestnet } from '@stacks/network';
+
+// Simplified service without Stacks contract integration for now
+// We'll add contract functionality after basic IPFS works
 
 class SBTService {
   constructor() {
@@ -16,9 +9,9 @@ class SBTService {
       pinataJwt: process.env.PINATA_JWT,
       pinataGateway: process.env.PINATA_GATEWAY || 'https://gateway.pinata.cloud'
     });
-    this.network = new StacksTestnet();
+    // Removed Stacks network initialization for now
     this.contractAddress = process.env.SBT_CONTRACT_ADDRESS || '';
-    this.contractName = process.env.SBT_CONTRACT_NAME || 'sbt-transfer';
+    this.contractName = process.env.SBT_CONTRACT_NAME || 'simple-sbt';
   }
 
   // Upload SBT metadata to IPFS via Pinata
@@ -90,53 +83,16 @@ class SBTService {
     }
   }
 
-  // Create contract call transaction for minting SBT
-  createMintSBTTransaction(senderPrivateKey, recipientAddress, name, description, imageUrl, issuer) {
-    try {
-      const txOptions = {
-        contractAddress: this.contractAddress,
-        contractName: this.contractName,
-        functionName: 'mint-sbt',
-        functionArgs: [
-          principalCV(recipientAddress),
-          stringAsciiCV(name.substring(0, 64)), // Limit to 64 chars
-          stringAsciiCV(description.substring(0, 256)), // Limit to 256 chars
-          stringAsciiCV(imageUrl.substring(0, 256)), // Limit to 256 chars
-          stringAsciiCV(issuer.substring(0, 64)) // Limit to 64 chars
-        ],
-        senderKey: senderPrivateKey,
-        network: this.network,
-        anchorMode: AnchorMode.Any,
-        postConditionMode: PostConditionMode.Allow,
-        fee: 5000 // 0.005 STX
-      };
+  // Contract functions temporarily disabled - will re-enable after Stacks import fix
+  // createMintSBTTransaction(senderPrivateKey, recipientAddress, name, description, imageUrl, issuer) {
+  //   // TODO: Re-implement after fixing Stacks library imports
+  //   throw new Error('Contract functionality temporarily disabled');
+  // }
 
-      return makeContractCall(txOptions);
-
-    } catch (error) {
-      console.error('❌ Failed to create mint transaction:', error);
-      throw new Error('Failed to create mint transaction');
-    }
-  }
-
-  // Broadcast transaction to network
-  async broadcastTransaction(transaction) {
-    try {
-      console.log('📡 Broadcasting SBT mint transaction...');
-      const broadcastResponse = await broadcastTransaction(transaction, this.network);
-      
-      if (broadcastResponse.error) {
-        throw new Error(`Broadcast failed: ${broadcastResponse.error}`);
-      }
-
-      console.log(`✅ SBT mint transaction broadcast: ${broadcastResponse.txid}`);
-      return broadcastResponse;
-
-    } catch (error) {
-      console.error('❌ Failed to broadcast transaction:', error);
-      throw new Error('Failed to broadcast transaction');
-    }
-  }
+  // broadcastTransaction(transaction) {
+  //   // TODO: Re-implement after fixing Stacks library imports  
+  //   throw new Error('Contract functionality temporarily disabled');
+  // }
 
   // Get SBT metadata from contract
   async getSBTMetadata(sbtId) {

@@ -288,8 +288,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- **Live Demo**: [stacktag.app](https://stacktag.app)
-- **Documentation**: [docs.stacktag.app](https://docs.stacktag.app)
+- **Live Demo**: [StackTag](https://github.com/Nouman-wp/StackTag-HackerHouse-Goa)
+- **Documentation**: [docs.stacks.co/](https://docs.stacks.co/)
 - **Stacks Explorer**: [explorer.stacks.co](https://explorer.stacks.co/?chain=testnet)
 - **IPFS Gateway**: [gateway.pinata.cloud](https://gateway.pinata.cloud)
 

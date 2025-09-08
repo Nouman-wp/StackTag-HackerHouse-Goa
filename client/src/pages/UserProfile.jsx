@@ -174,7 +174,7 @@ export default function UserProfile() {
                       )}
                       {sbt.importedBy && (
                         <p className="text-blue-400">
-                          📥 Imported by: <span className="font-medium">{sbt.importedBy}.btc</span>
+                          📥 Self-imported achievement
                         </p>
                       )}
                       <p>Date: {new Date(sbt.issuedAt).toLocaleDateString()}</p>

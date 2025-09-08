@@ -113,14 +113,14 @@ export default function UserDashboard() {
         formData.append('image', newSBT.imageFile);
       }
 
-      const response = await fetch(`${import.meta.env.VITE_API_BASE || 'http://localhost:5000'}/api/sbts/import`, {
+      const response = await fetch(`${import.meta.env.VITE_API_BASE || 'http://localhost:5000'}/api/users/${username}/sbts`, {
         method: 'POST',
-        body: formData, // Don't set Content-Type header, let browser set it for FormData
+        body: formData, // Use FormData for file upload
       });
 
       if (response.ok) {
         const result = await response.json();
-        alert(`🏆 SBT imported successfully!\n\n✅ Metadata uploaded to IPFS\n🔗 IPFS URL: ${result.ipfsUrl}`);
+        alert(`🏆 SBT imported successfully!\n\n✅ SBT added to your profile\n🎯 View it at /${username}/profile`);
         setNewSBT({ name: '', description: '', issuer: '', imageUrl: '', imageFile: null });
         fetchUserProfile(); // Refresh data
       } else {
