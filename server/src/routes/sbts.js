@@ -1,7 +1,25 @@
 import { Router } from 'express';
+import multer from 'multer';
 import User from '../models/User.js';
+import sbtService from '../services/sbtService.js';
 
 const router = Router();
+
+// Configure multer for image uploads
+const storage = multer.memoryStorage();
+const upload = multer({ 
+  storage: storage,
+  limits: {
+    fileSize: 5 * 1024 * 1024 // 5MB limit
+  },
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'), false);
+    }
+  }
+});
 
 // Send SBT to another user
 router.post('/sbts/send', async (req, res) => {
@@ -18,9 +36,10 @@ router.post('/sbts/send', async (req, res) => {
       senderAddress
     } = req.body;
 
-    // Validate required fields
-    if (!name || !description || !issuer) {
-      return res.status(400).json({ error: 'Name, description, and issuer are required' });
+    // Validate using SBT service
+    const validation = sbtService.validateSBTData({ name, description, issuer, imageUrl });
+    if (!validation.isValid) {
+      return res.status(400).json({ error: validation.errors.join(', ') });
     }
 
     if (!recipientAddress && !recipientUsername) {
@@ -52,13 +71,33 @@ router.post('/sbts/send', async (req, res) => {
       }
     }
 
-    // Create the SBT object
+    // Process SBT creation and upload to IPFS
+    console.log('📤 Processing SBT creation with IPFS upload...');
+    const sbtData = {
+      name: name.trim(),
+      description: description.trim(),
+      issuer: issuer.trim(),
+      imageUrl: imageUrl?.trim() || '',
+      message: message?.trim() || '',
+      senderUsername,
+      recipientAddress: recipient.walletAddress
+    };
+
+    const ipfsResult = await sbtService.processSBTCreation(sbtData);
+    
+    if (!ipfsResult.success) {
+      return res.status(500).json({ error: ipfsResult.error });
+    }
+
+    // Create the SBT object with IPFS metadata
     const newSBT = {
       name: name.trim(),
       description: description.trim(),
       issuer: issuer.trim(),
       imageUrl: imageUrl?.trim() || '',
       message: message?.trim() || '',
+      metadataUrl: ipfsResult.ipfsUrl, // IPFS URL for metadata
+      ipfsHash: ipfsResult.ipfsHash,
       issuedAt: new Date(),
       sentBy: senderUsername,
       senderAddress: senderAddress,
@@ -80,10 +119,12 @@ router.post('/sbts/send', async (req, res) => {
       ? `${recipient.username}.btc` 
       : `${recipient.walletAddress.slice(0, 8)}...${recipient.walletAddress.slice(-4)}`;
 
+    console.log('✅ SBT sent successfully with IPFS metadata');
     res.json({
       message: 'SBT sent successfully',
       recipient: recipientDisplay,
       sbt: newSBT,
+      ipfsUrl: ipfsResult.ipfsUrl,
       recipientProfile: recipient.username ? `/${recipient.username}/profile` : null
     });
 
@@ -126,6 +167,105 @@ router.get('/sbts/sent/:username', async (req, res) => {
   } catch (error) {
     console.error('Get sent SBTs error:', error);
     res.status(500).json({ error: 'Failed to fetch sent SBTs' });
+  }
+});
+
+// Upload SBT image to IPFS
+router.post('/sbts/upload-image', upload.single('image'), async (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ error: 'No image file provided' });
+    }
+
+    console.log('📤 Uploading SBT image to IPFS...');
+    const imageResult = await sbtService.uploadImageToIPFS(req.file.buffer, req.file.originalname);
+
+    res.json({
+      success: true,
+      ipfsHash: imageResult.ipfsHash,
+      ipfsUrl: imageResult.ipfsUrl,
+      message: 'Image uploaded successfully'
+    });
+
+  } catch (error) {
+    console.error('Image upload error:', error);
+    res.status(500).json({ error: 'Failed to upload image' });
+  }
+});
+
+// Enhanced SBT import with IPFS upload
+router.post('/sbts/import', upload.single('image'), async (req, res) => {
+  try {
+    const { username, name, description, issuer, imageUrl } = req.body;
+
+    if (!username || !name || !description || !issuer) {
+      return res.status(400).json({ error: 'Username, name, description, and issuer are required' });
+    }
+
+    // Find the user
+    const user = await User.findOne({ username: username.toLowerCase() });
+    if (!user) {
+      return res.status(404).json({ error: 'User not found' });
+    }
+
+    let finalImageUrl = imageUrl || '';
+
+    // If an image file was uploaded, upload it to IPFS
+    if (req.file) {
+      console.log('📤 Uploading SBT image to IPFS...');
+      const imageResult = await sbtService.uploadImageToIPFS(req.file.buffer, req.file.originalname);
+      finalImageUrl = imageResult.ipfsUrl;
+    }
+
+    // Process SBT creation and upload metadata to IPFS
+    const sbtData = {
+      name: name.trim(),
+      description: description.trim(),
+      issuer: issuer.trim(),
+      imageUrl: finalImageUrl,
+      importedBy: username
+    };
+
+    const ipfsResult = await sbtService.processSBTCreation(sbtData);
+    
+    if (!ipfsResult.success) {
+      return res.status(500).json({ error: ipfsResult.error });
+    }
+
+    // Create the SBT object
+    const newSBT = {
+      name: name.trim(),
+      description: description.trim(),
+      issuer: issuer.trim(),
+      imageUrl: finalImageUrl,
+      metadataUrl: ipfsResult.ipfsUrl, // IPFS URL for metadata
+      ipfsHash: ipfsResult.ipfsHash,
+      issuedAt: new Date(),
+      importedBy: username,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
+    };
+
+    // Add SBT to user's profile
+    if (!user.sbts) {
+      user.sbts = [];
+    }
+    user.sbts.push(newSBT);
+    user.lastActive = new Date();
+
+    // Save the user
+    await user.save();
+
+    console.log('✅ SBT imported successfully with IPFS metadata');
+    res.json({
+      message: 'SBT imported successfully',
+      sbt: newSBT,
+      ipfsUrl: ipfsResult.ipfsUrl,
+      user: user
+    });
+
+  } catch (error) {
+    console.error('SBT import error:', error);
+    res.status(500).json({ error: 'Failed to import SBT' });
   }
 });
 

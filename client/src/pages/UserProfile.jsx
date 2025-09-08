@@ -172,7 +172,24 @@ export default function UserProfile() {
                           📤 Sent by: <span className="font-medium">{sbt.sentBy}.btc</span>
                         </p>
                       )}
+                      {sbt.importedBy && (
+                        <p className="text-blue-400">
+                          📥 Imported by: <span className="font-medium">{sbt.importedBy}.btc</span>
+                        </p>
+                      )}
                       <p>Date: {new Date(sbt.issuedAt).toLocaleDateString()}</p>
+                      {sbt.metadataUrl && (
+                        <p>
+                          <a 
+                            href={sbt.metadataUrl} 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            className="text-cyan-400 hover:text-cyan-300 transition-colors"
+                          >
+                            🔗 View on IPFS
+                          </a>
+                        </p>
+                      )}
                     </div>
                   </div>
                 ))}

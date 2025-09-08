@@ -1,3 +1,5 @@
 DEPLOYMENT_GUIDE.md 
+SBT_DEPLOYMENT_GUIDE.md
 ProjectGuide.md 
 .env
+node_modules

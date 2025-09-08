@@ -1,1 +1,23 @@
-{}
+{
+  "name": "stack_tag",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Nouman-wp/Stacks-HackerHouse-Goa.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Nouman-wp/Stacks-HackerHouse-Goa/issues"
+  },
+  "homepage": "https://github.com/Nouman-wp/Stacks-HackerHouse-Goa#readme",
+  "dependencies": {
+    "mongodb": "^6.19.0",
+    "mongoose": "^8.18.0"
+  }
+}

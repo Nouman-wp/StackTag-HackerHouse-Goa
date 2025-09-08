@@ -20,7 +20,8 @@ export default function UserDashboard() {
     name: '',
     description: '',
     issuer: '',
-    imageUrl: ''
+    imageUrl: '',
+    imageFile: null
   });
   const [sendSBT, setSendSBT] = useState({
     recipientAddress: '',
@@ -99,20 +100,32 @@ export default function UserDashboard() {
     setSaving(true);
     
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_BASE || 'http://localhost:5000'}/api/users/${username}/sbts`, {
+      // Create FormData for file upload
+      const formData = new FormData();
+      formData.append('username', username);
+      formData.append('name', newSBT.name);
+      formData.append('description', newSBT.description);
+      formData.append('issuer', newSBT.issuer);
+      formData.append('imageUrl', newSBT.imageUrl);
+      
+      // Add image file if selected
+      if (newSBT.imageFile) {
+        formData.append('image', newSBT.imageFile);
+      }
+
+      const response = await fetch(`${import.meta.env.VITE_API_BASE || 'http://localhost:5000'}/api/sbts/import`, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newSBT),
+        body: formData, // Don't set Content-Type header, let browser set it for FormData
       });
 
       if (response.ok) {
-        alert('🏆 SBT imported successfully!');
-        setNewSBT({ name: '', description: '', issuer: '', imageUrl: '' });
+        const result = await response.json();
+        alert(`🏆 SBT imported successfully!\n\n✅ Metadata uploaded to IPFS\n🔗 IPFS URL: ${result.ipfsUrl}`);
+        setNewSBT({ name: '', description: '', issuer: '', imageUrl: '', imageFile: null });
         fetchUserProfile(); // Refresh data
       } else {
-        throw new Error('Failed to import SBT');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to import SBT');
       }
     } catch (err) {
       console.error('SBT import error:', err);
@@ -450,14 +463,76 @@ export default function UserDashboard() {
                         onChange={(e) => setNewSBT(prev => ({ ...prev, imageUrl: e.target.value }))}
                         placeholder="https://example.com/sbt-image.png"
                         className="w-full px-4 py-3 bg-gray-800 border border-gray-600 rounded-lg text-white placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                        disabled={newSBT.imageFile} // Disable URL input if file is selected
                       />
                     </div>
 
-                    {newSBT.imageUrl && (
+                    <div className="text-center text-gray-400 text-sm">
+                      OR
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium text-gray-300 mb-2">Upload Image File</label>
+                      <div className="flex items-center justify-center w-full">
+                        <label className={`flex flex-col items-center justify-center w-full h-32 border-2 border-dashed rounded-lg cursor-pointer transition-colors ${
+                          newSBT.imageFile 
+                            ? 'border-green-500 bg-green-900/20' 
+                            : 'border-gray-600 bg-gray-800/50 hover:bg-gray-700/50'
+                        }`}>
+                          <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                            {newSBT.imageFile ? (
+                              <>
+                                <svg className="w-8 h-8 mb-2 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+                                </svg>
+                                <p className="text-sm text-green-400 font-medium">{newSBT.imageFile.name}</p>
+                                <p className="text-xs text-gray-400">Click to change file</p>
+                              </>
+                            ) : (
+                              <>
+                                <svg className="w-8 h-8 mb-2 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                                </svg>
+                                <p className="mb-2 text-sm text-gray-400">
+                                  <span className="font-medium">Click to upload</span> an image
+                                </p>
+                                <p className="text-xs text-gray-400">PNG, JPG, GIF up to 5MB</p>
+                              </>
+                            )}
+                          </div>
+                          <input
+                            type="file"
+                            className="hidden"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files[0];
+                              if (file) {
+                                setNewSBT(prev => ({ 
+                                  ...prev, 
+                                  imageFile: file,
+                                  imageUrl: '' // Clear URL when file is selected
+                                }));
+                              }
+                            }}
+                          />
+                        </label>
+                      </div>
+                      {newSBT.imageFile && (
+                        <button
+                          type="button"
+                          onClick={() => setNewSBT(prev => ({ ...prev, imageFile: null }))}
+                          className="mt-2 text-sm text-red-400 hover:text-red-300 transition-colors"
+                        >
+                          Remove file
+                        </button>
+                      )}
+                    </div>
+
+                    {(newSBT.imageUrl || newSBT.imageFile) && (
                       <div>
                         <p className="text-sm text-gray-400 mb-2">Image Preview:</p>
                         <img 
-                          src={newSBT.imageUrl} 
+                          src={newSBT.imageFile ? URL.createObjectURL(newSBT.imageFile) : newSBT.imageUrl} 
                           alt="SBT Preview" 
                           className="w-32 h-32 object-cover rounded-lg border border-gray-600"
                           onError={(e) => {
