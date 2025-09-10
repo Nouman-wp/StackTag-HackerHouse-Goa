@@ -290,7 +290,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🔗 Links
 
-- **Live Demo**: [StackTag](https://github.com/Nouman-wp/StackTag-HackerHouse-Goa)
+- **Live Demo**: [StackTag](https://x.com/StackTag_btc)
 - **Documentation**: [docs.stacks.co/](https://docs.stacks.co/)
 - **Stacks Explorer**: [explorer.stacks.co](https://explorer.stacks.co/?chain=testnet)
 - **IPFS Gateway**: [gateway.pinata.cloud](https://gateway.pinata.cloud)
