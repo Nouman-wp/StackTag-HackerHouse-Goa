@@ -1,4 +1,4 @@
-## Stack Tag – MERN + Stacks Testnet MVP
+
 
 ### 1) Prerequisites
 - Node.js 20.19+ (React 19 + Vite 7 require it). Install from nodejs.org or use nvm.
@@ -62,14 +62,5 @@ Set them in `server/.env` if needed for server hints.
 - `POST /api/upload/image` – upload image to IPFS via Pinata (form field `file`)
 - `POST /api/stacks/prepare-claim` – server-side helper returning a suggested contract-call payload for the client to sign with Stacks Connect
 
-### 7) Client MVP
-- Landing page with gradient and name input to claim `.btc`
-- Header wallet button (wires to Stacks Connect in next steps)
-- Routes for `/`, future `/dashboard`, and dynamic `/[name].btc`
-
-### 8) Production notes
-- Use MongoDB Atlas and Pinata JWT with limited scopes.
-- Add CORS origins and rate limiting.
-- Deploy client on Vercel and server on Render/Fly/EC2.
 
 
